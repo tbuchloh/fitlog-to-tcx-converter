@@ -1,3 +1,5 @@
+![Java CI with Maven](https://github.com/tbuchloh/fitlog-to-tcx-converter/workflows/Java%20CI%20with%20Maven/badge.svg)
+
 # fitlog-to-tcx-converter
 Convert SportTracks 3.1 (https://sporttracks.mobi/) .fitlog to Garmin's .tcx files using Spring Batch Framework.
 
