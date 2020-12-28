@@ -29,8 +29,8 @@ public class VerifyTcxFileTasklet implements Tasklet {
 
 	@Override
 	public RepeatStatus execute(final StepContribution contribution, final ChunkContext chunkContext) throws Exception {
-		final var path = contribution.getStepExecution().getJobParameters().getString("output.file");
-		final var tcxResource = new FileSystemResource(path);
+		final var tcxFilePath = contribution.getStepExecution().getJobParameters().getString("output.file");
+		final var tcxResource = new FileSystemResource(tcxFilePath);
 		final var tdb = TrainingCenterDatabaseUtils.loadTrainingCenterDatabase(tcxResource);
 		log.info(StringUtils.repeat('-', 120));
 		log.info("training database activityCount:{}, distance:{}, time:{}", getActivityCount(tdb), distanceMeters(tdb),

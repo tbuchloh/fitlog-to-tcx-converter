@@ -269,7 +269,7 @@ public class StepScopeTestExecutionListenerIntegrationTests {
 
 	public StepExecution getStepExecution() {
 		final var paramBuilder = new JobParametersBuilder()
-				.addString("input.file", "src/test/resources/example1.fitlog")
+				.addString("input.file", "src/test/resources/test_cases_1.fitlog")
 				.addString("output.file", "target/example1.tcx");
 
 		final var execution = MetaDataInstanceFactory.createStepExecution(paramBuilder.toJobParameters());

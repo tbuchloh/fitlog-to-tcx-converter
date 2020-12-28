@@ -30,7 +30,7 @@ package de.tbuchloh.fitlogtotcxconverter.geodata;
 
 import org.springframework.util.Assert;
 
-public class DistanceCalculator {
+public abstract class DistanceCalculator {
 
 	public static double dist(final Coord p1, final Coord p2, final DistanceUnit unit) {
 		// dist = 6378.388 * acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) *
@@ -57,6 +57,10 @@ public class DistanceCalculator {
 			Assert.state(false, "unknown value: " + unit);
 		}
 		return dist;
+	}
+
+	private DistanceCalculator() {
+		// does nothing
 	}
 
 }

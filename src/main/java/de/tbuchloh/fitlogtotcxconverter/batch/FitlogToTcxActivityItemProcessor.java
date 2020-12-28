@@ -43,7 +43,7 @@ import de.tbuchloh.fitlogtotcxconverter.geodata.DistanceCalculator;
 import de.tbuchloh.fitlogtotcxconverter.geodata.DistanceUnit;
 import de.tbuchloh.fitlogtotcxconverter.tcx.ActivityUtils;
 
-public class FitlogToGarminActivityItemProcessor implements ItemProcessor<ActivityFL, JAXBElement<ActivityT>> {
+public class FitlogToTcxActivityItemProcessor implements ItemProcessor<ActivityFL, JAXBElement<ActivityT>> {
 
 	private static class PtListSplitter {
 
@@ -73,7 +73,7 @@ public class FitlogToGarminActivityItemProcessor implements ItemProcessor<Activi
 
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(FitlogToGarminActivityItemProcessor.class);
+	private static final Logger log = LoggerFactory.getLogger(FitlogToTcxActivityItemProcessor.class);
 
 	private void computeMissingDistances(final ActivityFL item) {
 		final var track = item.getTrack();
