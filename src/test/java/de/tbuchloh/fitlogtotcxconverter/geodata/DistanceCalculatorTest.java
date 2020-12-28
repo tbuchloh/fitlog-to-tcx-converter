@@ -8,6 +8,13 @@ import org.junit.jupiter.api.Test;
 class DistanceCalculatorTest {
 
 	@Test
+	void distance_samePos_return_zero() {
+		final var brandTor = new Coord(52.5164, 13.3777);
+
+		assertThat(DistanceCalculator.dist(brandTor, brandTor, DistanceUnit.KM)).isEqualTo(0);
+	}
+
+	@Test
 	void distance_berlinBrandTor_to_lissabonTejoBridge() {
 		final var brandTor = new Coord(52.5164, 13.3777);
 		final var tejoBridge = new Coord(38.692668, -9.177944);
@@ -16,6 +23,7 @@ class DistanceCalculatorTest {
 		// Berlin Brandenburger Tor - Lissabon Tejo Brücke 2228.929 km 2334.931 km
 		// 2317.722 km
 		assertThat(DistanceCalculator.dist(brandTor, tejoBridge, DistanceUnit.KM)).isEqualTo(2317.722, within(0.1));
+		assertThat(DistanceCalculator.dist(tejoBridge, brandTor, DistanceUnit.KM)).isEqualTo(2317.722, within(0.1));
 	}
 
 	@Test

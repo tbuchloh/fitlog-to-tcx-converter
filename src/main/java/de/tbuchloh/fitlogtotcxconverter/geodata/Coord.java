@@ -4,17 +4,12 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-public class Coord implements Comparable<Coord> {
+public class Coord {
 
 	private final ImmutablePair<Double, Double> pair;
 
 	public Coord(final double lat, final double lon) {
 		this.pair = new ImmutablePair<>(lat, lon);
-	}
-
-	@Override
-	public int compareTo(final Coord o) {
-		return pair.compareTo(pair);
 	}
 
 	@Override

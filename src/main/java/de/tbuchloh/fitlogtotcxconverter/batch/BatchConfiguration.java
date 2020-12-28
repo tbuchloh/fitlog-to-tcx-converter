@@ -1,4 +1,4 @@
-package de.tbuchloh.fitlogtotcxconverter;
+package de.tbuchloh.fitlogtotcxconverter.batch;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -27,13 +27,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.lang.NonNull;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.garmin.xmlschemas.trainingcenterdatabase.v2.ActivityT;
 
-import de.tbuchloh.fitlogtotcxconverter.batch.FitlogToGarminActivityItemProcessor;
-import de.tbuchloh.fitlogtotcxconverter.batch.JobCompletionNotificationListener;
-import de.tbuchloh.fitlogtotcxconverter.batch.VerifyTcxFileTasklet;
 import de.tbuchloh.fitlogtotcxconverter.fitlog.ActivityFL;
 
 @Configuration
@@ -42,6 +40,8 @@ public class BatchConfiguration {
 
 	public static final QName ACTIVITIES_QNAME = new QName("http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
 			"Activities");
+
+	private static final String ACTIVITY_FRAGMENT_ROOT_NAME = "{http://www.zonefivesoftware.com/xmlschemas/FitnessLogbook/v3}Activity";
 
 	public static final QName TRAINING_DB_QNAME = new QName(
 			"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2", "TrainingCenterDatabase");
@@ -61,7 +61,7 @@ public class BatchConfiguration {
 
 	@Bean
 	public ItemProcessor<ActivityFL, JAXBElement<ActivityT>> processor() {
-		return new FitlogToGarminActivityItemProcessor();
+		return new FitlogToTcxActivityItemProcessor();
 	}
 
 	@StepScope
@@ -73,7 +73,7 @@ public class BatchConfiguration {
 		marshaller.setPackagesToScan("de.tbuchloh.fitlogtotcxconverter.fitlog");
 		return new StaxEventItemReaderBuilder<ActivityFL>().name("fitlogFileResourceReader") //
 				.resource(new FileSystemResource(path)) //
-				.addFragmentRootElements("{http://www.zonefivesoftware.com/xmlschemas/FitnessLogbook/v3}Activity") //
+				.addFragmentRootElements(ACTIVITY_FRAGMENT_ROOT_NAME) //
 				.unmarshaller(marshaller) //
 				.build();
 	}
@@ -92,8 +92,8 @@ public class BatchConfiguration {
 	@StepScope
 	@Bean
 	public StaxEventItemWriter<JAXBElement<ActivityT>> writer(
-			@Value("#{jobParameters['output.file']}") final String path) {
-		Objects.requireNonNull(path);
+			@NonNull @Value("#{jobParameters['output.file']}") final String outputFilePath) {
+		Objects.requireNonNull(outputFilePath);
 
 		final var marshaller = new Jaxb2Marshaller();
 		marshaller.setClassesToBeBound(ActivityT.class);
@@ -101,7 +101,7 @@ public class BatchConfiguration {
 		marshaller.setSupportJaxbElementClass(true);
 		final var eventFactory = XMLEventFactory.newInstance();
 		return new StaxEventItemWriterBuilder<JAXBElement<ActivityT>>().name("tcxFileResourceWriter") //
-				.resource(new FileSystemResource(path)) //
+				.resource(new FileSystemResource(outputFilePath)) //
 				.rootTagName(TRAINING_DB_QNAME.toString()).marshaller(marshaller) //
 				.headerCallback(writer -> {
 					try {

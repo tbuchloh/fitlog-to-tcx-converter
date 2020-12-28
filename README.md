@@ -1,12 +1,57 @@
-# TODO
-
-1. replace @SpringBootTest with more specific annotations to prevent startup exceptions
-2. Prefer BigDecimal over double in jaxb generated code
-
-|| Year || activityCount || distance || totalTime ||
-| 2010 | 64 (64)  | 408288 | 130076 |
-| 2011 | 151 (151) | 1145,481 (1147,65) | 102:12 (102:11) | 
-| 2012 |  (154) |  (1210,42) |  (103:48) | 
-| 2013 | 152 (152) | 1262,904 (1266,35) |  110:17 (110:15) | 
 # fitlog-to-tcx-converter
-Convert SportTracks .fitlog to Garmin's .tcx files
+Convert SportTracks 3.1 (https://sporttracks.mobi/) .fitlog to Garmin's .tcx files using Spring Batch Framework.
+
+What it does:
+
+1. Read all activities from .fitlog XML file.
+2. Convert Fitlog Activity to TCX Activity:
+	1. Handle manual edits/corrections to GPS track data.
+	2. Compute missing distances for Trackpoints.
+3. Write all TCX Activity into outout file.
+4. Log some output file characteristics for manual verification purposes:
+	1. Log some TrainingCenterDatabase metrics:
+		1. Activity Count
+		2. Total Distance Meters
+		3. Total Time Seconds
+	2. Log some Activity summary:
+		1. Activity Id
+		2. Lap Distance Meters
+		3. Trackpoint Distance Meters
+		4. Total Lap Time Seconds
+		5. Total Lap Calories
+		6. Lap Count
+		7. Trackpoint Count
+		8. Trackpoint Heart Rate Average
+	3. If logging.level=debug log some Trackpoint information:
+		1. Start Time
+		2. Distance Meters
+		3. Latitude
+		4. Longitude
+5. Validate output file schema conformance.
+
+# Prerequisites
+
+1. Java 14 or higher (e. g. OpenJDK 14)
+2. Maven 3.5 or higher
+3. Exported .fitlog files (see SportTracks Documentation)
+
+# Usage
+
+```
+mvn spring-boot:run input.file=/path/to/foo.fitlog output.file=/path/to/foo.tcx
+```
+
+or
+
+```
+mvn clean package # creates an executable jar file
+cd target
+java -jar fitlog-to-tcs-converter.jar input.file=/path/to/foo.fitlog output.file=/path/to/foo.tcx
+```
+
+# Known Issues
+
+1. Replace @SpringBootTest in FitlogToTcxConverterApplicationTests with more specific annotations to prevent startup exceptions
+2. Prefer BigDecimal over double in jaxb generated code.
+3. Enhance Test Coverage from 68% to at least 80%.
+

@@ -92,9 +92,6 @@
 					<sources>
 						<source>src/main/resources/TrainingCenterDatabasev2.xsd</source>
 					</sources>
-<!-- 					<xjbSources> -->
-<!-- 						<xjbSource>src/main/resources/bindings.xjb</xjbSource> -->
-<!-- 					</xjbSources> -->
 				</configuration>
 				<dependencies>
 					<dependency>

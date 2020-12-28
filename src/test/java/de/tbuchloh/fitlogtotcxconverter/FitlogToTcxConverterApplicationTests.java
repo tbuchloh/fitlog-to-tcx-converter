@@ -29,10 +29,7 @@ import com.garmin.xmlschemas.trainingcenterdatabase.v2.SportT;
 import com.garmin.xmlschemas.trainingcenterdatabase.v2.TrainingCenterDatabaseT;
 
 @SpringBootTest
-//@SpringBatchTest
-//@RunWith(SpringRunner.class)
-//@ContextConfiguration(classes = { BatchConfiguration.class, JobCompletionNotificationListener.class })
-class FitlogToTcxConverterApplicationTests {
+public class FitlogToTcxConverterApplicationTests {
 
 	@Autowired
 	private Job job;
@@ -43,7 +40,7 @@ class FitlogToTcxConverterApplicationTests {
 	@Test
 	public void runTestCases() throws Exception {
 		// setup
-		final var inputFilePath = "src/test/resources/example1.fitlog";
+		final var inputFilePath = "src/test/resources/test_cases_1.fitlog";
 		final var outputFilePath = "target/FitlogToTcxConverterApplicationTests_runJob.tcx";
 		final var expectedActivityCnt = 6;
 
