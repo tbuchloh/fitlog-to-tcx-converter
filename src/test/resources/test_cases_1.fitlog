@@ -26,7 +26,7 @@
         <pt tm="0" lat="52.1470832824707" lon="9.98455715179444" ele="112.734565734863" dist="0" hr="66"/>
         <pt tm="1" lat="52.1470832824707" lon="9.98454189300537" ele="112.725410461426" dist="1.325133" hr="65"/>
         <pt tm="3402" lat="52.1467361450195" lon="9.98437690734863" ele="114.604164123535" dist="9995.687" hr="142"/>
-        <pt tm="3407" lat="52.146858215332" lon="9.98435115814209" ele="113.901596069336" dist="10009.11" hr="141"/>
+        <pt tm="3407" lat="52.146858215332" lon="9.98435115814209" ele="113.901596069336" dist="20009.11" hr="141"/>
       </Track>
     </Activity>
     <Activity StartTime="2019-12-29T09:25:25Z" Id="b9281dcb-9d7b-4299-8d04-6fe0aaf45c8f">
@@ -1424,6 +1424,15 @@
       <DistanceMarkers>
         <Marker dist="1.312612"/>
       </DistanceMarkers>
+    </Activity>
+    <Activity StartTime="2017-11-17T11:00:00Z" Id="f66f9f7a-6fce-4d58-9ecd-d4aae0a2e89c">
+      <Metadata Source="" Created="2017-12-03T11:58:20Z" Modified="2017-12-03T11:59:03Z"/>
+      <Duration TotalSeconds="3240"/>
+      <Distance TotalMeters="9770"/>
+      <Category Id="403526fd-1791-4b9b-93e1-8439e6708ca4" Name="Running"/>
+      <EquipmentUsed>
+        <EquipmentItem Id="bb503c61-ccf8-4f71-acf1-6c97250f4914" Name="Asics - Kayano Gel 23-201705"/>
+      </EquipmentUsed>
     </Activity>
   </AthleteLog>
 </FitnessWorkbook>

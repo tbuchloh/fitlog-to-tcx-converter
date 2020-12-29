@@ -53,7 +53,7 @@ java -jar fitlog-to-tcs-converter.jar input.file=/path/to/foo.fitlog output.file
 
 # Known Issues
 
-1. Replace @SpringBootTest in FitlogToTcxConverterApplicationTests with more specific annotations to prevent startup exceptions
-2. Prefer BigDecimal over double in jaxb generated code.
-3. Enhance Test Coverage from 68% to at least 80%.
+1. Prefer BigDecimal over double in jaxb generated code.
+2. Enhance Test Coverage from 74% to at least 80% (functional 
+   code has more than 90% line coverage).
 

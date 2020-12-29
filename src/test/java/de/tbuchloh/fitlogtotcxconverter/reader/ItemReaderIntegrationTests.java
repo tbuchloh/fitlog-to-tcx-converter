@@ -1,4 +1,4 @@
-package de.tbuchloh.fitlogtotcxconverter;
+package de.tbuchloh.fitlogtotcxconverter.reader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.StepExecution;
@@ -16,9 +16,14 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.test.MetaDataInstanceFactory;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import de.tbuchloh.fitlogtotcxconverter.batch.BatchConfiguration;
+import de.tbuchloh.fitlogtotcxconverter.batch.JobCompletionNotificationListener;
 import de.tbuchloh.fitlogtotcxconverter.fitlog.ActivityFL;
 import de.tbuchloh.fitlogtotcxconverter.fitlog.CaloriesFL;
 import de.tbuchloh.fitlogtotcxconverter.fitlog.CategoryFL;
@@ -34,11 +39,14 @@ import de.tbuchloh.fitlogtotcxconverter.fitlog.MetadataFL;
 import de.tbuchloh.fitlogtotcxconverter.fitlog.PtFL;
 import de.tbuchloh.fitlogtotcxconverter.fitlog.TrackFL;
 import de.tbuchloh.fitlogtotcxconverter.fitlog.WeatherFL;
+import de.tbuchloh.fitlogtotcxconverter.utils.TestUtils;
 
-@SpringBatchTest
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = FitlogToTcxConverterApplication.class)
-public class StepScopeTestExecutionListenerIntegrationTests {
+@SpringBatchTest
+@EnableAutoConfiguration
+@ContextConfiguration(classes =  { BatchConfiguration.class, JobCompletionNotificationListener.class })
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+public class ItemReaderIntegrationTests {
 
 	static class ActivityBuilder {
 
@@ -277,7 +285,7 @@ public class StepScopeTestExecutionListenerIntegrationTests {
 	}
 
 	@Test
-	public void testReader() throws Exception {
+	public void readTestCases1() throws Exception {
 		// The reader is initialized and bound to the input data
 		final var ctx = new ExecutionContext();
 		reader.open(ctx);
@@ -301,7 +309,7 @@ public class StepScopeTestExecutionListenerIntegrationTests {
 						.addPt(new PtBuilder().tm("3402").lat("52.1467361450195").lon("9.98437690734863")
 								.ele("114.604164123535").dist("9995.687").hr("142").build())
 						.addPt(new PtBuilder().tm("3407").lat("52.146858215332").lon("9.98435115814209")
-								.ele("113.901596069336").dist("10009.11").hr("141").build())
+								.ele("113.901596069336").dist("20009.11").hr("141").build())
 						.build())
 				.build();
 
@@ -326,6 +334,14 @@ public class StepScopeTestExecutionListenerIntegrationTests {
 
 		assertThat(reader.read()).usingRecursiveComparison()
 				.ignoringFields("equipmentUsed", "laps", "name", "weather", "notes").isEqualTo(exp2);
+
+		assertThat(reader.read()).isNotNull();
+
+		assertThat(reader.read()).isNotNull();
+
+		assertThat(reader.read()).isNotNull();
+
+		assertThat(reader.read()).isNotNull();
 
 		assertThat(reader.read()).isNotNull();
 

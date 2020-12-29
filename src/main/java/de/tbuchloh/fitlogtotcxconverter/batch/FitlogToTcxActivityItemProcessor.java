@@ -106,6 +106,7 @@ public class FitlogToTcxActivityItemProcessor implements ItemProcessor<ActivityF
 	}
 
 	private SportT convertCategory(final CategoryFL category) {
+		// TODO should be configurable by properties file or something similar
 		try {
 			return SportT.fromValue(category.getName());
 		} catch (final IllegalArgumentException e) {
@@ -117,6 +118,8 @@ public class FitlogToTcxActivityItemProcessor implements ItemProcessor<ActivityF
 			case "Hügel":
 				return SportT.RUNNING;
 			case "Kondition":
+				return SportT.RUNNING;
+			case "Mit Hannah":
 				return SportT.RUNNING;
 			default:
 				log.warn("unknown category {}", category.getName());

@@ -5,14 +5,7 @@ import static org.assertj.core.api.Assertions.within;
 
 import org.junit.jupiter.api.Test;
 
-class DistanceCalculatorTest {
-
-	@Test
-	void distance_samePos_return_zero() {
-		final var brandTor = new Coord(52.5164, 13.3777);
-
-		assertThat(DistanceCalculator.dist(brandTor, brandTor, DistanceUnit.KM)).isEqualTo(0);
-	}
+public class DistanceCalculatorTests {
 
 	@Test
 	void distance_berlinBrandTor_to_lissabonTejoBridge() {
@@ -45,6 +38,13 @@ class DistanceCalculatorTest {
 		// https://www.kompf.de/gps/distcalc.html
 		// Rüsselsheim Bahnhof - Rüsselsheim Opelbrücke km 1.593 km 1.593 km
 		assertThat(DistanceCalculator.dist(hbf, opelbruecke, DistanceUnit.KM)).isEqualTo(1.593, within(0.1));
+	}
+
+	@Test
+	void distance_samePos_return_zero() {
+		final var brandTor = new Coord(52.5164, 13.3777);
+
+		assertThat(DistanceCalculator.dist(brandTor, brandTor, DistanceUnit.KM)).isEqualTo(0);
 	}
 
 }
