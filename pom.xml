@@ -11,12 +11,15 @@
 	</parent>
 	<groupId>de.tbuchloh</groupId>
 	<artifactId>fitlog-to-tcx-converter</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<!-- TODO this leads to a warning: 'version' contains an expression but
+		should be a constant. @ line 14, column 11 -->
+	<version>${version.number}</version>
 	<name>fitlog-to-tcx-converter</name>
 	<description>Convert fitlog to tcx</description>
 
 	<properties>
 		<java.version>14</java.version>
+		<version.number>${git.closest.tag.name}-${git.closest.tag.commit.count}-${git.commit.id.abbrev}</version.number>
 	</properties>
 
 	<dependencies>
@@ -59,6 +62,26 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.xsd</include>
+				</includes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.fitlog</include>
+				</includes>
+			</testResource>
+		</testResources>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -100,6 +123,28 @@
 						<version>${jakarta-activation.version}</version>
 					</dependency>
 				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<phase>initialize</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+					<commitIdGenerationMode>full</commitIdGenerationMode>
+					<gitDescribe>
+						<tags>true</tags>
+					</gitDescribe>
+					<offline>true</offline>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

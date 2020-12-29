@@ -1,4 +1,4 @@
-package de.tbuchloh.fitlogtotcxconverter;
+package de.tbuchloh.fitlogtotcxconverter.utils;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;

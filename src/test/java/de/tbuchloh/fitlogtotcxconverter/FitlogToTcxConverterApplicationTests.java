@@ -1,12 +1,12 @@
 package de.tbuchloh.fitlogtotcxconverter;
 
-import static de.tbuchloh.fitlogtotcxconverter.TestUtils.createXmlGregorianCalendar;
 import static de.tbuchloh.fitlogtotcxconverter.tcx.ActivityUtils.getLapCaloriesSum;
 import static de.tbuchloh.fitlogtotcxconverter.tcx.ActivityUtils.getLapDistanceSum;
 import static de.tbuchloh.fitlogtotcxconverter.tcx.ActivityUtils.getLapTotalTimeSum;
 import static de.tbuchloh.fitlogtotcxconverter.tcx.ActivityUtils.getTrackpointCount;
 import static de.tbuchloh.fitlogtotcxconverter.tcx.ActivityUtils.getTrackpointDistance;
 import static de.tbuchloh.fitlogtotcxconverter.tcx.TrainingCenterDatabaseUtils.loadTrainingCenterDatabase;
+import static de.tbuchloh.fitlogtotcxconverter.utils.TestUtils.createXmlGregorianCalendar;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.Assert.assertEquals;
@@ -15,20 +15,33 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.garmin.xmlschemas.trainingcenterdatabase.v2.IntensityT;
 import com.garmin.xmlschemas.trainingcenterdatabase.v2.SportT;
 import com.garmin.xmlschemas.trainingcenterdatabase.v2.TrainingCenterDatabaseT;
 
-@SpringBootTest
+import de.tbuchloh.fitlogtotcxconverter.batch.BatchConfiguration;
+import de.tbuchloh.fitlogtotcxconverter.batch.JobCompletionNotificationListener;
+
+@RunWith(SpringRunner.class)
+@SpringBatchTest
+@EnableAutoConfiguration
+@ContextConfiguration(classes =  { BatchConfiguration.class, JobCompletionNotificationListener.class })
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class FitlogToTcxConverterApplicationTests {
 
 	@Autowired
@@ -38,11 +51,11 @@ public class FitlogToTcxConverterApplicationTests {
 	private JobLauncher jobLauncher;
 
 	@Test
-	public void runTestCases() throws Exception {
+	public void runTestCases1() throws Exception {
 		// setup
 		final var inputFilePath = "src/test/resources/test_cases_1.fitlog";
 		final var outputFilePath = "target/FitlogToTcxConverterApplicationTests_runJob.tcx";
-		final var expectedActivityCnt = 6;
+		final var expectedActivityCnt = 7;
 
 		// execute
 		final var je1 = jobLauncher.run(job, new JobParametersBuilder().addString("input.file", inputFilePath)
@@ -53,16 +66,40 @@ public class FitlogToTcxConverterApplicationTests {
 
 		final var tdb = verifyTrainingCenterDatabase(outputFilePath, expectedActivityCnt);
 
-		verifyActivity2(tdb);
+		verifyActivityIdx0_trackDoesNotMatchActivityTotals(tdb);
 
-		verifyActivity3(tdb);
+		verifyActivityIdx2_multiLap_competition(tdb);
 
-		verifyActivity4(tdb);
+		verifyActivityIdx3_manuallyCreated_categoryFahrtspiel(tdb);
 
-		verifyActivity5(tdb);
+		verifyActivityIdx4_manualEdits_trackDoesNotMatchActivityTotals(tdb);
+
+		verifyActivityIdx5_categoryHuegel(tdb);
+
+		verifyActivityIdx6_manualCreation(tdb);
 	}
 
-	private void verifyActivity2(final TrainingCenterDatabaseT tdb) throws DatatypeConfigurationException {
+	private void verifyActivityIdx0_trackDoesNotMatchActivityTotals(final TrainingCenterDatabaseT tdb) {
+		final var act = tdb.getActivities().getActivity().get(0);
+		assertThat(act.getSport()).isEqualTo(SportT.RUNNING);
+		assertThat(act.getLap()).hasSize(1);
+		final var lap_0 = act.getLap().get(0);
+		assertThat(lap_0.getTotalTimeSeconds()).isEqualTo(3407.17);
+		assertThat(lap_0.getDistanceMeters()).isEqualTo(10009.11);
+		assertThat(lap_0.getAverageHeartRateBpm().getValue()).isEqualTo((short) 144);
+		assertThat(lap_0.getCalories()).isEqualTo(875);
+
+		final var softly = new SoftAssertions();
+		softly.assertThat(getTrackpointCount(act)).isEqualTo(4);
+		softly.assertThat(getTrackpointDistance(act)).isEqualTo(20009.11);
+		softly.assertThat(getLapDistanceSum(act)).isEqualTo(10009.11);
+		softly.assertThat(getLapTotalTimeSum(act)).isEqualTo(3407.17);
+		softly.assertThat(getLapCaloriesSum(act)).isEqualTo(875);
+		softly.assertAll();
+
+	}
+
+	private void verifyActivityIdx2_multiLap_competition(final TrainingCenterDatabaseT tdb) throws DatatypeConfigurationException {
 		final var act_2 = tdb.getActivities().getActivity().get(2);
 		assertThat(act_2).hasFieldOrPropertyWithValue("id", createXmlGregorianCalendar("2011-04-17T11:00:09Z"))
 				.hasFieldOrPropertyWithValue("sport", SportT.RUNNING).hasFieldOrPropertyWithValue("notes",
@@ -111,45 +148,65 @@ public class FitlogToTcxConverterApplicationTests {
 		softly_2.assertAll();
 	}
 
-	private void verifyActivity3(final TrainingCenterDatabaseT tdb) {
-		final var act_3 = tdb.getActivities().getActivity().get(3);
-		final var lap_3_0 = act_3.getLap().get(0);
-		assertThat(lap_3_0.getTotalTimeSeconds()).isEqualTo(1800d);
-		assertThat(lap_3_0.getDistanceMeters()).isEqualTo(6000d);
+	private void verifyActivityIdx3_manuallyCreated_categoryFahrtspiel(final TrainingCenterDatabaseT tdb) {
+		final var act = tdb.getActivities().getActivity().get(3);
+		assertThat(act.getSport()).isEqualTo(SportT.RUNNING);
+		final var lap_0 = act.getLap().get(0);
+		assertThat(lap_0.getTotalTimeSeconds()).isEqualTo(1800d);
+		assertThat(lap_0.getDistanceMeters()).isEqualTo(6000d);
 	}
 
-	private void verifyActivity4(final TrainingCenterDatabaseT tdb) {
-		final var act_4 = tdb.getActivities().getActivity().get(4);
-		assertThat(act_4.getLap()).hasSizeGreaterThanOrEqualTo(1);
-		final var lap_4_0 = act_4.getLap().get(0);
-		assertThat(lap_4_0.getTotalTimeSeconds()).isEqualTo(356.19);
-		assertThat(lap_4_0.getDistanceMeters()).isEqualTo(1048.883);
-		assertThat(lap_4_0.getAverageHeartRateBpm().getValue()).isEqualTo((short) 126);
-		assertThat(lap_4_0.getCalories()).isEqualTo(86);
+	private void verifyActivityIdx4_manualEdits_trackDoesNotMatchActivityTotals(final TrainingCenterDatabaseT tdb) {
+		final var act = tdb.getActivities().getActivity().get(4);
+		assertThat(act.getSport()).isEqualTo(SportT.RUNNING);
+		assertThat(act.getLap()).hasSizeGreaterThanOrEqualTo(1);
+		final var lap_0 = act.getLap().get(0);
+		assertThat(lap_0.getTotalTimeSeconds()).isEqualTo(356.19);
+		assertThat(lap_0.getDistanceMeters()).isEqualTo(1048.883);
+		assertThat(lap_0.getAverageHeartRateBpm().getValue()).isEqualTo((short) 126);
+		assertThat(lap_0.getCalories()).isEqualTo(86);
 
-		assertThat(act_4.getLap()).hasSize(2);
-		final var lap_4_1 = act_4.getLap().get(1);
-		assertThat(lap_4_1.getTotalTimeSeconds()).isEqualTo(1165 - 356.19);
-		assertThat(lap_4_1.getDistanceMeters()).isEqualTo(3790 - 1048.883);
-		assertThat(lap_4_1.getCalories()).isEqualTo(330 - 86);
+		assertThat(act.getLap()).hasSize(2);
+		final var lap_1 = act.getLap().get(1);
+		assertThat(lap_1.getTotalTimeSeconds()).isEqualTo(1165 - 356.19);
+		assertThat(lap_1.getDistanceMeters()).isEqualTo(3790 - 1048.883);
+		assertThat(lap_1.getCalories()).isEqualTo(330 - 86);
 	}
 
-	private void verifyActivity5(final TrainingCenterDatabaseT tdb) {
-		final var act_5 = tdb.getActivities().getActivity().get(5);
-		assertThat(act_5.getLap()).hasSizeGreaterThanOrEqualTo(1);
-		final var lap_5_0 = act_5.getLap().get(0);
-		assertThat(lap_5_0.getTotalTimeSeconds()).isEqualTo(2245.8);
-		assertThat(lap_5_0.getDistanceMeters()).isEqualTo(7100.153);
-		assertThat(lap_5_0.getAverageHeartRateBpm().getValue()).isEqualTo((short) 150);
-		assertThat(lap_5_0.getCalories()).isEqualTo(629);
+	private void verifyActivityIdx5_categoryHuegel(final TrainingCenterDatabaseT tdb) {
+		final var act = tdb.getActivities().getActivity().get(5);
+		assertThat(act.getSport()).isEqualTo(SportT.RUNNING);
+		assertThat(act.getLap()).hasSizeGreaterThanOrEqualTo(1);
+		final var lap_0 = act.getLap().get(0);
+		assertThat(lap_0.getTotalTimeSeconds()).isEqualTo(2245.8);
+		assertThat(lap_0.getDistanceMeters()).isEqualTo(7100.153);
+		assertThat(lap_0.getAverageHeartRateBpm().getValue()).isEqualTo((short) 150);
+		assertThat(lap_0.getCalories()).isEqualTo(629);
 
-		final var softly_5 = new SoftAssertions();
-		softly_5.assertThat(getTrackpointCount(act_5)).isEqualTo(487L);
-		softly_5.assertThat(getTrackpointDistance(act_5)).isCloseTo(7100, within(1d));
-		softly_5.assertThat(getLapDistanceSum(act_5)).isCloseTo(7100, within(1d));
-		softly_5.assertThat(getLapTotalTimeSum(act_5)).isEqualTo(2245.8);
-		softly_5.assertThat(getLapCaloriesSum(act_5)).isEqualTo(629);
-		softly_5.assertAll();
+		final var softly = new SoftAssertions();
+		softly.assertThat(getTrackpointCount(act)).isEqualTo(487L);
+		softly.assertThat(getTrackpointDistance(act)).isCloseTo(7100, within(1d));
+		softly.assertThat(getLapDistanceSum(act)).isCloseTo(7100, within(1d));
+		softly.assertThat(getLapTotalTimeSum(act)).isEqualTo(2245.8);
+		softly.assertThat(getLapCaloriesSum(act)).isEqualTo(629);
+		softly.assertAll();
+	}
+
+	private void verifyActivityIdx6_manualCreation(final TrainingCenterDatabaseT tdb) {
+		final var act = tdb.getActivities().getActivity().get(6);
+		assertThat(act.getSport()).isEqualTo(SportT.RUNNING);
+		assertThat(act.getLap()).hasSizeGreaterThanOrEqualTo(1);
+		final var lap_0 = act.getLap().get(0);
+		assertThat(lap_0.getTotalTimeSeconds()).isEqualTo(3240);
+		assertThat(lap_0.getDistanceMeters()).isEqualTo(9770);
+
+		final var softly = new SoftAssertions();
+		softly.assertThat(getTrackpointCount(act)).isEqualTo(0L);
+		softly.assertThat(getTrackpointDistance(act)).isEqualTo(0L);
+		softly.assertThat(getLapDistanceSum(act)).isEqualTo(9770);
+		softly.assertThat(getLapTotalTimeSum(act)).isEqualTo(3240);
+		softly.assertThat(getLapCaloriesSum(act)).isEqualTo(0);
+		softly.assertAll();
 	}
 
 	private void verifyJobExecution(final JobExecution je1, final int expectedActivityCnt) {
