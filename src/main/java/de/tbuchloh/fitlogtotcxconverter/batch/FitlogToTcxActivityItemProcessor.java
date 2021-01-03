@@ -144,7 +144,7 @@ public class FitlogToTcxActivityItemProcessor implements ItemProcessor<ActivityF
 							return v.getHeartRateBpm().getValue();
 						}).average().orElse(0);
 				if (avgHrValue > 0) {
-					r.setAverageHeartRateBpm(createHeartRateInBPM((short) avgHrValue));
+					r.setAverageHeartRateBpm(createHeartRateInBPM(new BigDecimal(avgHrValue)));
 				}
 			}
 		}
@@ -180,7 +180,7 @@ public class FitlogToTcxActivityItemProcessor implements ItemProcessor<ActivityF
 						return v.getHeartRateBpm().getValue();
 					}).max().orElse(0);
 			if (maxHrValue > 0) {
-				r.setMaximumHeartRateBpm(createHeartRateInBPM((short) maxHrValue));
+				r.setMaximumHeartRateBpm(createHeartRateInBPM(new BigDecimal(maxHrValue)));
 			}
 		}
 
@@ -201,9 +201,9 @@ public class FitlogToTcxActivityItemProcessor implements ItemProcessor<ActivityF
 		return r;
 	}
 
-	private HeartRateInBeatsPerMinuteT createHeartRateInBPM(final Short value) {
+	private HeartRateInBeatsPerMinuteT createHeartRateInBPM(final BigDecimal value) {
 		final var hr = new HeartRateInBeatsPerMinuteT();
-		hr.setValue(value);
+		hr.setValue(value.shortValue());
 		return hr;
 	}
 
@@ -270,7 +270,7 @@ public class FitlogToTcxActivityItemProcessor implements ItemProcessor<ActivityF
 				tp.setAltitudeMeters(ele.doubleValue());
 			});
 			Optional.ofNullable(v.getHr()).ifPresent(hr -> {
-				tp.setHeartRateBpm(createHeartRateInBPM(hr.shortValue()));
+				tp.setHeartRateBpm(createHeartRateInBPM(new BigDecimal(hr)));
 			});
 			Optional.ofNullable(v.getDist()).ifPresent(ele -> {
 				tp.setDistanceMeters(ele.doubleValue());

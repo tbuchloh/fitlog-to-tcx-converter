@@ -200,7 +200,7 @@ public class ItemReaderIntegrationTests {
 
 		public LapBuilder heartReate(final String value) {
 			final var r = new HeartRateFL();
-			r.setAverageBPM(Short.parseShort(value));
+			r.setAverageBPM(new BigDecimal(value));
 			obj.setHeartRate(r);
 			return this;
 		}

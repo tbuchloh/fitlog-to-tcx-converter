@@ -1,5 +1,7 @@
 package de.tbuchloh.fitlogtotcxconverter.fitlog;
 
+import java.math.BigDecimal;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -7,13 +9,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class HeartRateFL {
 
 	@XmlAttribute(name = "AverageBPM")
-	private Short averageBPM;
+	private BigDecimal averageBPM;
 
-	public Short getAverageBPM() {
+	public BigDecimal getAverageBPM() {
 		return averageBPM;
 	}
 
-	public void setAverageBPM(final Short averageBPM) {
+	public void setAverageBPM(final BigDecimal averageBPM) {
 		this.averageBPM = averageBPM;
 	}
 
