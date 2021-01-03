@@ -11,9 +11,7 @@
 	</parent>
 	<groupId>de.tbuchloh</groupId>
 	<artifactId>fitlog-to-tcx-converter</artifactId>
-	<!-- TODO this leads to a warning: 'version' contains an expression but
-		should be a constant. @ line 14, column 11 -->
-	<version>${version.number}</version>
+	<version>1.0.1</version>
 	<name>fitlog-to-tcx-converter</name>
 	<description>Convert fitlog to tcx</description>
 
